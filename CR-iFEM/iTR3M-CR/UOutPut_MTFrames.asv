@@ -1,0 +1,16 @@
+filepath_UT = [cd,'\NU\'];
+filepath_U = [cd,'\file_Ndsp'];
+strainTfile = [cd,'\LE\'];
+% ===============
+NodeLabel = 41;
+OutPut_Ui = [1,2,3];
+% ===============
+totalframe = length(dir(strcat(strainTfile,'\','*.txt')))/2-1;
+for framenum = 1:totalframe
+    file_UT = [filepath_UT,'NU_',num2str(framenum),'.txt'];
+    file_U = [filepath_U,'Ndsp_',num2str(framenum)];
+    mat_UT = importdata
+    
+
+
+end

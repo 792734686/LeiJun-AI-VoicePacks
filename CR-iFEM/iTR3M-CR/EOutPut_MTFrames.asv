@@ -1,0 +1,18 @@
+filepath_U = [cd,'\file2_Ndsp\'];
+strainTfile = [cd,'\LE\'];
+% ===============
+ElementLabel = 39;
+E = 210000;
+mu = 0.3;
+% ===============
+D = E/(1-mu^2)*[1,mu,9;mu,1,0;0,0,0.5*(1-mu)];
+totalframe = length(dir(strcat(strainTfile,'\','*.txt')))/2-1;
+
+for framenum = 1:totalframe
+    NEfile = [filepath_U,'NEBT_',num2str(framenum),'.txt'];
+    NE = importdata(NEfile);
+    S = 
+    S(framenum,:) = (D*NE(framenum,:)')';
+
+
+end

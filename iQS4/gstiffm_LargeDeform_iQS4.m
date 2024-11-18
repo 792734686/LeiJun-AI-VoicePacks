@@ -1,0 +1,86 @@
+function [GK,B] = gstiffm_LargeDeform_iQS4(NXY,ELEM,EELM,t,Eep,Eep2,Ndsp)
+% function to assemble global stiffness matrix
+% NXY --- node coordinate matrix    节点坐标矩阵，节点号|x坐标|y坐标
+% ELEM --- element node number matrix   单元节点号矩阵，单元号|节点1|节点2|节点3|节点4
+% EMAT --- elemnt material matrix
+% GK --- global stiffness matrix    总刚度阵，6n*6n
+% we --- 膜应变权重系数
+% wk --- 弯曲应变权重系数
+% wg --- 法向剪切应变权重系数
+% t --- 板厚
+% EELM --- 贴片的单元号
+n=size(NXY,1);
+GK = zeros(6*n,6*n);
+n=size(ELEM,1);
+for i=1:n
+    %     E = EMAT(i,2);
+    %     v = EMAT(i,3);
+    %     t = EMAT(i,4);
+    %     D = [1,v,0;v,1,0;0,0,(1-v)/2];
+    %     D = E/(1-v*v)*D;
+    if ismember(i,EELM)
+        we = 1;
+        wk = 1;
+        wg = 1e-4;
+        Eepi = Eep(i,:)'; 
+    else
+        we = 1;
+        wk = 1;
+        wg = 1e-4;
+        Eepi = Eep2(i,:)'; 
+    end
+    NN = ELEM(i,2:end); %第i个单元的节点号向量，节点1|2|3|4
+    ENC = [NXY(NN,2),NXY(NN,3),NXY(NN,4)];    %返回第i个单元的4个节点坐标，[xi|yi|zi]
+    ELM_Ui = [Ndsp(NN,2),Ndsp(NN,3),Ndsp(NN,4),Ndsp(NN,5),Ndsp(NN,6),Ndsp(NN,7)];
+    [EK,B] = estiffm_LargeDeform_iQS4( ENC,ELM_Ui,4,we,wk,wg,t,Eepi );  % 4--ngs
+    for j=1:4   % 4 - number of node in an element
+        for k=1:4   % 4 - number of node in an element
+            jj = NN(j);
+            kk = NN(k);
+            GK(6*jj-5,6*kk-5) = GK(6*jj-5,6*kk-5) + EK(6*j-5,6*k-5);
+            GK(6*jj-5,6*kk-4) = GK(6*jj-5,6*kk-4) + EK(6*j-5,6*k-4);
+            GK(6*jj-5,6*kk-3) = GK(6*jj-5,6*kk-3) + EK(6*j-5,6*k-3);
+            GK(6*jj-5,6*kk-2) = GK(6*jj-5,6*kk-2) + EK(6*j-5,6*k-2);
+            GK(6*jj-5,6*kk-1) = GK(6*jj-5,6*kk-1) + EK(6*j-5,6*k-1);
+            GK(6*jj-5,6*kk) = GK(6*jj-5,6*kk) + EK(6*j-5,6*k);
+            %-------------------------------------------------------
+            GK(6*jj-4,6*kk-5) = GK(6*jj-4,6*kk-5) + EK(6*j-4,6*k-5);
+            GK(6*jj-4,6*kk-4) = GK(6*jj-4,6*kk-4) + EK(6*j-4,6*k-4);
+            GK(6*jj-4,6*kk-3) = GK(6*jj-4,6*kk-3) + EK(6*j-4,6*k-3);
+            GK(6*jj-4,6*kk-2) = GK(6*jj-4,6*kk-2) + EK(6*j-4,6*k-2);
+            GK(6*jj-4,6*kk-1) = GK(6*jj-4,6*kk-1) + EK(6*j-4,6*k-1);
+            GK(6*jj-4,6*kk) = GK(6*jj-4,6*kk) + EK(6*j-4,6*k);
+            %-------------------------------------------------------
+            GK(6*jj-3,6*kk-5) = GK(6*jj-3,6*kk-5) + EK(6*j-3,6*k-5);
+            GK(6*jj-3,6*kk-4) = GK(6*jj-3,6*kk-4) + EK(6*j-3,6*k-4);
+            GK(6*jj-3,6*kk-3) = GK(6*jj-3,6*kk-3) + EK(6*j-3,6*k-3);
+            GK(6*jj-3,6*kk-2) = GK(6*jj-3,6*kk-2) + EK(6*j-3,6*k-2);
+            GK(6*jj-3,6*kk-1) = GK(6*jj-3,6*kk-1) + EK(6*j-3,6*k-1);
+            GK(6*jj-3,6*kk) = GK(6*jj-3,6*kk) + EK(6*j-3,6*k);
+            %-------------------------------------------------------
+            GK(6*jj-2,6*kk-5) = GK(6*jj-2,6*kk-5) + EK(6*j-2,6*k-5);
+            GK(6*jj-2,6*kk-4) = GK(6*jj-2,6*kk-4) + EK(6*j-2,6*k-4);
+            GK(6*jj-2,6*kk-3) = GK(6*jj-2,6*kk-3) + EK(6*j-2,6*k-3);
+            GK(6*jj-2,6*kk-2) = GK(6*jj-2,6*kk-2) + EK(6*j-2,6*k-2);
+            GK(6*jj-2,6*kk-1) = GK(6*jj-2,6*kk-1) + EK(6*j-2,6*k-1);
+            GK(6*jj-2,6*kk) = GK(6*jj-2,6*kk) + EK(6*j-2,6*k);
+            %-------------------------------------------------------
+            GK(6*jj-1,6*kk-5) = GK(6*jj-1,6*kk-5) + EK(6*j-1,6*k-5);
+            GK(6*jj-1,6*kk-4) = GK(6*jj-1,6*kk-4) + EK(6*j-1,6*k-4);
+            GK(6*jj-1,6*kk-3) = GK(6*jj-1,6*kk-3) + EK(6*j-1,6*k-3);
+            GK(6*jj-1,6*kk-2) = GK(6*jj-1,6*kk-2) + EK(6*j-1,6*k-2);
+            GK(6*jj-1,6*kk-1) = GK(6*jj-1,6*kk-1) + EK(6*j-1,6*k-1);
+            GK(6*jj-1,6*kk) = GK(6*jj-1,6*kk) + EK(6*j-1,6*k);
+            %-------------------------------------------------------
+            GK(6*jj,6*kk-5) = GK(6*jj,6*kk-5) + EK(6*j,6*k-5);
+            GK(6*jj,6*kk-4) = GK(6*jj,6*kk-4) + EK(6*j,6*k-4);
+            GK(6*jj,6*kk-3) = GK(6*jj,6*kk-3) + EK(6*j,6*k-3);
+            GK(6*jj,6*kk-2) = GK(6*jj,6*kk-2) + EK(6*j,6*k-2);
+            GK(6*jj,6*kk-1) = GK(6*jj,6*kk-1) + EK(6*j,6*k-1);
+            GK(6*jj,6*kk) = GK(6*jj,6*kk) + EK(6*j,6*k);
+            %-------------------------------------------------------
+        end
+    end
+end
+end
+
