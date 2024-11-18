@@ -1,0 +1,32 @@
+E = 210000;
+a = 1000;
+b = a;
+rho = 7.8e-9;
+mu = 0.3;
+D = E*t^3/(12*(1-mu^2));
+m = rho*t;
+omega = 848.49;
+x = Nxy0(:,2);
+y = Nxy0(:,3);
+z = Ndsp(:,4);
+figure
+xn = linspace(min(x),max(x),(max(x)-min(x))/20+1);
+yn = linspace(min(y),max(y),(max(y)-min(y))/20+1);
+[Xn,Yn] = meshgrid(xn,yn);
+w = griddata(x,y,z,Xn,Yn,'v4');
+[wx1,~] = gradient(w,delta,delta);
+[wx2,~] = gradient(wx1,delta,delta);
+[wx3,~] = gradient(wx2,delta,delta);
+[d4wdx4,~] = gradient(wx3,delta,delta);
+[~,wy1] = gradient(w,delta,delta);
+[~,wy2] = gradient(wy1,delta,delta);
+[~,wy3] = gradient(wy2,delta,delta);
+[~,d4wdy4] = gradient(wy3,delta,delta);
+[~,wx2y1] = gradient(wx2,delta,delta);
+[~,d4wdx2dy2] = gradient(wx2y1,delta,delta);
+DI = abs(D*(d4wdx4+2*d4wdx2dy2+d4wdy4) - rho*t*omega^2*w);
+DI(1:7,:) = 0;
+DI(size(DI,1)-6:size(DI,1),:) = 0;
+DI(:,1:7) = 0;
+DI(:,size(DI,2)-6:size(DI,2)) = 0;
+surf(Xn,Yn,DI);shading interp
